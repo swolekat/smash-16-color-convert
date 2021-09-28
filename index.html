@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Smash Color Converter</title>
+		<style>
+		*, *::before, *::after {
+			box-sizing: border-box;
+		}
+
+		html, body {
+			margin: 0;
+			padding: 0;
+			height: 100%;
+		}
+
+		body {
+			display: flex;
+			flex-direction: column;
+			background: #444;
+			color: #fff;
+			font-family: "Trebuchet MS", sans-serif;
+		}
+
+		header {
+			min-height: 60px;
+			background: #a00;
+			font-size: 40px;
+			line-height: 40px;
+			padding: 10px;
+		}
+
+		.main-content {
+			display: flex;
+			flex-grow: 1;
+		}
+
+		.content-section {
+			display: flex;
+			flex-direction: column;
+			flex-grow: 1;
+		}
+
+		.content-section-not-color {
+			padding: 10px;
+		}
+
+		.input-row {
+			display: flex;
+			font-size: 16px;
+		}
+
+		.input-row > input {
+			display: block;
+			flex-grow: 1;
+			color: #000;
+			border: 0;
+			font-size: 16px;
+				padding: 10px;
+				border-radius: 4px 0 0 4px;
+		}
+
+		.input-row > input:focus,
+		.input-row > button:focus {
+			outline: none;
+		}
+
+		.input-row > button {
+			border: 0;
+			background: #a00;
+			color: #fff;
+			font-size: 16px;
+				padding: 10px;
+				border-radius: 0 4px 4px 0;
+		}
+
+		.color-section {
+			background: #000;
+			flex-grow: 1;
+		}
+
+		h1 {
+			text-align: center;
+		}
+		</style>
+	</head>
+	<body>
+		<header>
+			Smash Color Converter
+		</header>
+		<div class="main-content">
+			<div class="content-section">
+				<div class="content-section-not-color">
+					<h1 class="content-section-title">
+						Hex Color
+					</h1>
+					<div class="input-row">
+						<input id="hex-color-input"/>
+						<button id="hex-color-button">
+							Update
+						</button>
+					</div>
+				</div>
+				<div class="color-section" id="hex-color-section">
+				</div>
+			</div>
+			<div class="content-section">
+				<div class="content-section-not-color">
+					<h1 class="content-section-title">
+						Smash Color
+					</h1>
+					<div class="input-row">
+						<input id="smash-color-input"/>
+						<button id="smash-color-button">
+							Update
+						</button>
+					</div>
+				</div>
+				<div class="color-section" id="smash-color-section">
+				</div>
+			</div>
+		</div>
+		<script>
+			const MAGIC_SMASH_NUMBER = 32768;
+			// const MAGIC_SMASH_NUMBER = 0;
+
+			let hexColor = "";
+			let smashColor = "";
+			let smashHexColor = "";
+
+			const hexColorInput = document.getElementById('hex-color-input');
+			const hexColorButton = document.getElementById('hex-color-button');
+			const hexColorSection = document.getElementById('hex-color-section');
+
+			const smashColorInput = document.getElementById('smash-color-input');
+			const smashColorButton = document.getElementById('smash-color-button');
+			const smashColorSection = document.getElementById('smash-color-section');
+
+			const updateColorSections = () => {
+				hexColorSection.style.background = hexColor;
+				smashColorSection.style.background = smashHexColor;
+			};
+
+			const updateSmashHexColor = () => {
+				let smashNumber = Number.parseInt(smashColor, 16) - MAGIC_SMASH_NUMBER;
+				if(smashNumber < 0){
+					smashNumber += MAGIC_SMASH_NUMBER;
+				}
+				const red = Math.floor(smashNumber / 1024);
+				const green = Math.floor((smashNumber % 1024) / 32);
+				const blue = smashNumber % 32;
+				smashHexColor =`#${(red * 8).toString(16)}${(green * 8).toString(16)}${(blue * 8).toString(16)}`;
+			};
+
+
+			const updateHexColor = () => {
+				let hexColorValue = hexColorInput.value.replace(/\W/g, '').replace('#', '');
+				if(hexColorValue.length === 3){
+					hexColorValue = `${hexColorValue[0]}${hexColorValue[0]}${hexColorValue[1]}${hexColorValue[1]}${hexColorValue[2]}${hexColorValue[2]}`;
+				}
+				hexColor = `#${hexColorValue}`;
+
+
+				const red = Number.parseInt(`${hexColorValue[0]}${hexColorValue[1]}`, 16);
+				const green = Number.parseInt(`${hexColorValue[2]}${hexColorValue[3]}`, 16);
+				const blue = Number.parseInt(`${hexColorValue[4]}${hexColorValue[5]}`, 16);
+
+				const red16 = Math.floor(red/8);
+				const green16 = Math.floor(green/8);
+				const blue16 = Math.floor(blue/8);
+
+				const smashNumber = (red16 * 1024) + (green16 * 32) + (blue16) + MAGIC_SMASH_NUMBER;
+				smashColor = smashNumber.toString(16);
+				smashColorInput.value = smashColor;
+				updateSmashHexColor();
+				updateColorSections();
+			};
+
+			const updateSmashColor = () => {
+				let smashColorValue = smashColorInput.value.replace(/\W/g, '').replace('#', '');
+				smashColor = smashColorValue;
+				updateSmashHexColor();
+				hexColor = `${smashHexColor}`;
+				hexColorInput.value = `${smashHexColor}`;
+				updateColorSections();
+			};
+
+
+
+
+			hexColorButton.onclick = updateHexColor;
+			smashColorButton.onclick = updateSmashColor;
+		</script>
+	</body>
+</html>
